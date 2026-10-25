@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ Auto Order Panel — Garzxxiterz Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-1: #0a0416;
+  --neon-cyan: #00f2fe;
+  --neon-blue: #4facfe;
+  --neon-pink: #ff2e97;
+  --neon-purple: #a855f7;
+  --neon-green: #00ff88;
+  --neon-gold: #ffd60a;
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --text: #ffffff;
+  --text-dim: #a0a0b0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
+html, body { overflow-x: hidden; }
+body {
+  background: var(--bg-1); min-height: 100vh; color: var(--text);
+  padding: 20px; position: relative;
+}
+#bgCanvas { position: fixed; inset: 0; z-index: -2; opacity: 0.5; }
+.bg-glow {
+  position: fixed; width: 500px; height: 500px; border-radius: 50%;
+  filter: blur(120px); z-index: -1; opacity: 0.4; pointer-events: none;
+  animation: floatGlow 20s ease-in-out infinite;
+}
+.bg-glow.g1 { top: -100px; left: -100px; background: var(--neon-purple); }
+.bg-glow.g2 { bottom: -150px; right: -100px; background: var(--neon-cyan); animation-delay: -7s; }
+.bg-glow.g3 { top: 40%; left: 50%; background: var(--neon-pink); animation-delay: -14s; opacity: 0.25; }
+@keyframes floatGlow {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(80px,-60px) scale(1.15); }
+  66% { transform: translate(-60px,80px) scale(0.9); }
+}
+.container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+.gradient-text {
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+  background-size: 300% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; animation: gradientShift 4s linear infinite;
+}
+@keyframes gradientShift { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+
+/* LOGIN */
+.login-wrap { min-height: 90vh; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.6s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.login-card {
+  width: 100%; max-width: 440px; padding: 45px 38px;
+  background: linear-gradient(145deg, rgba(20,10,40,0.9), rgba(10,5,25,0.95));
+  border: 1px solid var(--glass-border); border-radius: 24px;
+  backdrop-filter: blur(20px); position: relative; overflow: hidden;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.6), 0 0 80px rgba(79,172,254,0.15);
+}
+.login-card::before {
+  content: ''; position: absolute; top:-2px;left:-2px;right:-2px;bottom:-2px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+  background-size: 300% 300%; border-radius: 24px; z-index: -1;
+  animation: gradientShift 6s linear infinite; opacity: 0.6;
+}
+.login-logo {
+  font-size: 4em; text-align: center; margin-bottom: 10px;
+  animation: pulseLogo 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(79,172,254,0.6));
+}
+@keyframes pulseLogo { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+.login-card h1 { text-align: center; font-size: 1.9em; margin-bottom: 6px; }
+.login-card .sub { text-align: center; color: var(--text-dim); font-size: 0.85em; margin-bottom: 30px; }
+.field { margin-bottom: 18px; }
+.field label {
+  display: block; font-size: 0.75em; color: var(--neon-cyan); margin-bottom: 8px;
+  font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.field input {
+  width: 100%; padding: 14px 16px; border-radius: 12px;
+  border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4);
+  color: var(--text); font-size: 0.95em; outline: none;
+  transition: all 0.3s; font-family: 'Space Grotesk', sans-serif;
+}
+.field input:focus {
+  border-color: var(--neon-cyan); background: rgba(0,0,0,0.6);
+  box-shadow: 0 0 0 4px rgba(0,242,254,0.1), 0 0 20px rgba(0,242,254,0.2);
+}
+.field small { color: var(--text-dim); font-size: 0.72em; margin-top: 5px; display: block; }
+.btn-primary {
+  width: 100%; padding: 15px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  color: #000; font-weight: 700; font-size: 1em; cursor: pointer;
+  transition: all 0.3s; font-family: 'Space Grotesk', sans-serif;
+  position: relative; overflow: hidden;
+}
+.btn-primary::before {
+  content: ''; position: absolute; top:0;left:-100%; width:100%;height:100%;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+  transition: left 0.6s;
+}
+.btn-primary:hover::before { left: 100%; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,242,254,0.5); }
+
+/* DASHBOARD */
+.dashboard { display: none; }
+.dashboard.show { display: block; }
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 22px; background: linear-gradient(135deg, rgba(20,10,40,0.85), rgba(10,5,25,0.9));
+  border: 1px solid var(--glass-border); border-radius: 16px;
+  backdrop-filter: blur(20px); margin-bottom: 28px;
+  animation: slideDown 0.5s ease;
+}
+@keyframes slideDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+.topbar .left-group { display: flex; align-items: center; gap: 10px; }
+.topbar .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1em; }
+.topbar .logo .bolt {
+  font-size: 1.4em; filter: drop-shadow(0 0 10px var(--neon-cyan));
+  animation: pulseLogo 2s ease-in-out infinite;
+}
+.topbar .right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.mini-btn {
+  padding: 8px 14px; border-radius: 10px; border: 1px solid var(--glass-border);
+  background: var(--glass); color: var(--text); cursor: pointer;
+  font-size: 0.82em; font-weight: 600; transition: 0.25s;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.mini-btn:hover { background: rgba(255,255,255,0.08); transform: translateY(-1px); }
+.mini-btn.danger { color: var(--neon-pink); border-color: rgba(255,46,151,0.4); }
+.mini-btn.danger:hover { background: rgba(255,46,151,0.15); }
+
+/* HAMBURGER */
+.hamburger {
+  display: none; width: 42px; height: 42px; border-radius: 12px;
+  border: 1px solid rgba(255, 214, 10, 0.3);
+  background: linear-gradient(135deg, rgba(255,214,10,0.1), rgba(255,46,151,0.1));
+  color: var(--neon-gold); cursor: pointer; transition: all 0.3s;
+  align-items: center; justify-content: center; flex-direction: column;
+  gap: 4px; padding: 0; margin-right: 12px;
+}
+.hamburger.show { display: inline-flex; }
+.hamburger:hover {
+  background: linear-gradient(135deg, rgba(255,214,10,0.2), rgba(255,46,151,0.2));
+  border-color: var(--neon-gold); transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255,214,10,0.4);
+}
+.hamburger span {
+  display: block; width: 18px; height: 2px;
+  background: var(--neon-gold); border-radius: 2px;
+  transition: all 0.3s; box-shadow: 0 0 6px rgba(255,214,10,0.5);
+}
+.hamburger.active span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* SIDEBAR */
+.sidebar-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px); z-index: 998;
+  opacity: 0; visibility: hidden; transition: all 0.3s;
+}
+.sidebar-backdrop.show { opacity: 1; visibility: visible; }
+.sidebar {
+  position: fixed; top: 0; left: 0; height: 100vh; width: 300px; max-width: 85vw;
+  background: linear-gradient(180deg, rgba(25,12,45,0.98), rgba(10,5,25,0.99));
+  border-right: 1px solid rgba(255,214,10,0.25); z-index: 999;
+  transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column; box-shadow: 10px 0 60px rgba(255,214,10,0.15);
+  overflow-y: auto;
+}
+.sidebar.show { transform: translateX(0); }
+.sidebar-header {
+  padding: 24px 20px; border-bottom: 1px solid rgba(255,214,10,0.15);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.sidebar-header .brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 1.05em; color: var(--neon-gold);
+  text-shadow: 0 0 20px rgba(255,214,10,0.3);
+}
+.sidebar-header .brand .crown {
+  font-size: 1.4em; filter: drop-shadow(0 0 10px var(--neon-gold));
+  animation: pulseLogo 2s ease-in-out infinite;
+}
+.sidebar-header .close-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
+  color: var(--text); cursor: pointer; font-size: 1.1em; transition: all 0.25s;
+}
+.sidebar-header .close-btn:hover { background: rgba(255,46,151,0.15); color: var(--neon-pink); }
+.sidebar-user {
+  padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center; gap: 12px;
+}
+.sidebar-user .avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-gold), var(--neon-pink));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #000; font-size: 1.1em;
+  box-shadow: 0 0 20px rgba(255,214,10,0.4); flex-shrink: 0;
+}
+.sidebar-user .info { overflow: hidden; }
+.sidebar-user .info .name {
+  font-weight: 700; font-size: 0.95em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar-user .info .role {
+  font-size: 0.72em; color: var(--neon-gold);
+  text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+}
+.sidebar-section { padding: 16px 12px; flex: 1; }
+.sidebar-section .section-label {
+  font-size: 0.68em; color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: 1.2px; font-weight: 600; padding: 0 12px; margin-bottom: 10px;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+  border-radius: 10px; cursor: pointer; transition: all 0.25s;
+  font-size: 0.88em; font-weight: 500; color: var(--text);
+  margin-bottom: 4px; border: 1px solid transparent;
+  width: 100%; background: transparent; font-family: 'Space Grotesk', sans-serif;
+  text-align: left;
+}
+.sidebar-item:hover {
+  background: linear-gradient(135deg, rgba(255,214,10,0.12), rgba(255,46,151,0.12));
+  border-color: rgba(255,214,10,0.3); transform: translateX(4px);
+}
+.sidebar-item .icon { font-size: 1.1em; width: 20px; text-align: center; flex-shrink: 0; }
+.sidebar-item .arrow { margin-left: auto; opacity: 0.4; transition: all 0.3s; }
+.sidebar-item:hover .arrow { opacity: 1; transform: translateX(2px); }
+.sidebar-item.danger { color: var(--neon-pink); }
+.sidebar-item.danger:hover { background: rgba(255,46,151,0.15); border-color: rgba(255,46,151,0.4); }
+
+/* HERO */
+.hero {
+  position: relative; padding: 50px 40px;
+  background: linear-gradient(135deg, rgba(20,10,40,0.85), rgba(10,5,25,0.9));
+  border: 1px solid var(--glass-border); border-radius: 24px;
+  margin-bottom: 26px; overflow: hidden;
+  animation: heroIn 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes heroIn { from{opacity:0;transform:translateY(30px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+.hero::before {
+  content: ''; position: absolute; top:-50%; right:-20%; width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(0,242,254,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: ''; position: absolute; bottom:-50%; left:-20%; width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-greet {
+  font-size: 0.9em; color: var(--text-dim); margin-bottom: 10px;
+  letter-spacing: 1px; text-transform: uppercase; font-weight: 600;
+  position: relative; z-index: 1;
+}
+.hero h1 {
+  font-size: clamp(2em, 5vw, 3em); font-weight: 700;
+  letter-spacing: -1.5px; margin-bottom: 16px;
+  position: relative; z-index: 1; line-height: 1.1;
+}
+.hero h1 .wave {
+  display: inline-block; animation: wave 2s ease-in-out infinite;
+  transform-origin: 70% 70%;
+}
+@keyframes wave { 0%,100%{transform:rotate(0)} 10%{transform:rotate(14deg)} 20%{transform:rotate(-8deg)} 30%{transform:rotate(14deg)} 40%{transform:rotate(-4deg)} 50%{transform:rotate(10deg)} 60%{transform:rotate(0)} }
+.hero-role {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 30px;
+  background: rgba(79,172,254,0.12); border: 1px solid rgba(79,172,254,0.3);
+  font-size: 0.85em; font-weight: 600;
+  position: relative; z-index: 1; margin-bottom: 8px;
+}
+.hero-role .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green);
+  animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hero-role .role-name { color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 1px; }
+.hero-role.owner, .hero-role.highowner, .hero-role.admin {
+  background: linear-gradient(90deg, rgba(255,214,10,0.15), rgba(255,46,151,0.15));
+  border-color: rgba(255,214,10,0.4);
+}
+.hero-role.owner .role-name, .hero-role.highowner .role-name, .hero-role.admin .role-name {
+  color: var(--neon-gold);
+}
+.hero-role.owner .dot, .hero-role.highowner .dot, .hero-role.admin .dot {
+  background: var(--neon-gold); box-shadow: 0 0 10px var(--neon-gold);
+}
+
+.hero-actions {
+  margin-top: 30px; display: flex; gap: 14px; flex-wrap: wrap;
+  position: relative; z-index: 1;
+  animation: heroIn 0.7s cubic-bezier(0.4,0,0.2,1) 0.2s backwards;
+}
+.cta-buat {
+  position: relative; display: inline-flex; align-items: center; gap: 14px;
+  padding: 20px 36px; border-radius: 18px; border: none;
+  background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan), var(--neon-purple));
+  background-size: 300% 300%; color: #000; font-size: 1.05em; font-weight: 700;
+  cursor: pointer; overflow: hidden; font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.5px; transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+  animation: gradientShift 4s linear infinite, ctaPulse 3s ease-in-out infinite;
+  box-shadow: 0 15px 50px rgba(0,255,136,0.35), 0 0 60px rgba(0,242,254,0.2);
+}
+@keyframes ctaPulse {
+  0%,100% { box-shadow: 0 15px 50px rgba(0,255,136,0.35), 0 0 60px rgba(0,242,254,0.2); }
+  50% { box-shadow: 0 20px 70px rgba(0,255,136,0.5), 0 0 90px rgba(0,242,254,0.4); }
+}
+.cta-buat::before {
+  content: ''; position: absolute; top:0;left:-100%; width:100%;height:100%;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent);
+  transition: left 0.7s;
+}
+.cta-buat:hover::before { left: 100%; }
+.cta-buat:hover { transform: translateY(-4px) scale(1.02); }
+.cta-buat .arrow { font-size: 1.3em; transition: transform 0.3s; }
+.cta-buat:hover .arrow { transform: translateX(6px); }
+
+.cta-uprole {
+  position: relative; display: none; align-items: center; gap: 14px;
+  padding: 20px 36px; border-radius: 18px; border: 2px solid;
+  background: linear-gradient(135deg, rgba(255,214,10,0.15), rgba(255,46,151,0.15));
+  color: var(--neon-gold); font-size: 1.05em; font-weight: 700;
+  cursor: pointer; overflow: hidden; font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.5px; transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+  border-color: rgba(255,214,10,0.5);
+  animation: uprolePulse 3s ease-in-out infinite;
+}
+.cta-uprole.show { display: inline-flex; }
+@keyframes uprolePulse {
+  0%,100% { box-shadow: 0 8px 30px rgba(255,214,10,0.3), 0 0 40px rgba(255,46,151,0.15); }
+  50% { box-shadow: 0 12px 50px rgba(255,214,10,0.6), 0 0 70px rgba(255,46,151,0.3); }
+}
+.cta-uprole::before {
+  content: ''; position: absolute; top:0;left:-100%; width:100%;height:100%;
+  background: linear-gradient(90deg,transparent,rgba(255,214,10,0.4),transparent);
+  transition: left 0.7s;
+}
+.cta-uprole:hover::before { left: 100%; }
+.cta-uprole:hover {
+  transform: translateY(-4px) scale(1.02);
+  background: linear-gradient(135deg, rgba(255,214,10,0.3), rgba(255,46,151,0.3));
+  border-color: var(--neon-gold);
+}
+.cta-uprole .arrow { font-size: 1.3em; transition: transform 0.3s; }
+.cta-uprole:hover .arrow { transform: translateX(6px); }
+
+/* STATS */
+.stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px; margin-bottom: 26px;
+}
+.stat-card {
+  padding: 22px; background: linear-gradient(145deg, rgba(20,10,40,0.85), rgba(10,5,25,0.9));
+  border: 1px solid var(--glass-border); border-radius: 16px;
+  position: relative; overflow: hidden; transition: all 0.3s;
+  animation: statIn 0.6s cubic-bezier(0.4,0,0.2,1) backwards;
+}
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+@keyframes statIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.stat-card:hover { transform: translateY(-4px); border-color: rgba(0,242,254,0.3); box-shadow: 0 15px 40px rgba(0,242,254,0.15); }
+.stat-card::before { content: ''; position: absolute; top:0;left:0; width: 4px; height: 100%; background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple)); }
+.stat-card.green::before { background: linear-gradient(180deg, var(--neon-green), var(--neon-cyan)); }
+.stat-card.pink::before { background: linear-gradient(180deg, var(--neon-pink), var(--neon-purple)); }
+.stat-card.gold::before { background: linear-gradient(180deg, var(--neon-gold), var(--neon-pink)); }
+.stat-card .icon { font-size: 1.7em; margin-bottom: 10px; }
+.stat-card .value { font-size: 1.9em; font-weight: 700; letter-spacing: -1px; font-family: 'JetBrains Mono', monospace; }
+.stat-card .label { font-size: 0.72em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+.section-title { font-size: 1.15em; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.section-title .bar { width: 4px; height: 22px; background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple)); border-radius: 2px; }
+.actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 26px; }
+.action-card {
+  padding: 22px; background: linear-gradient(145deg, rgba(20,10,40,0.85), rgba(10,5,25,0.9));
+  border: 1px solid var(--glass-border); border-radius: 16px; cursor: pointer;
+  transition: all 0.3s; position: relative; overflow: hidden;
+  animation: statIn 0.6s cubic-bezier(0.4,0,0.2,1) 0.5s backwards;
+}
+.action-card:hover { transform: translateY(-4px); border-color: rgba(0,242,254,0.3); box-shadow: 0 15px 40px rgba(0,242,254,0.15); }
+.action-card .ac-icon {
+  width: 48px; height: 48px; border-radius: 12px; display: flex;
+  align-items: center; justify-content: center; font-size: 1.4em; margin-bottom: 14px;
+  background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.2);
+}
+.action-card:nth-child(2) .ac-icon { background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.3); }
+.action-card:nth-child(3) .ac-icon { background: rgba(255,214,10,0.1); border-color: rgba(255,214,10,0.3); }
+.action-card:nth-child(4) .ac-icon { background: rgba(255,46,151,0.1); border-color: rgba(255,46,151,0.3); }
+.action-card h3 { font-size: 1.05em; font-weight: 700; margin-bottom: 6px; }
+.action-card p { font-size: 0.82em; color: var(--text-dim); line-height: 1.5; }
+.action-card .arrow-hover { position: absolute; top: 22px; right: 22px; font-size: 1.2em; color: var(--text-dim); transition: all 0.3s; }
+.action-card:hover .arrow-hover { color: var(--neon-cyan); transform: translate(4px, -4px); }
+
+.page { display: none; animation: pageIn 0.4s ease; }
+.page.show { display: block; }
+@keyframes pageIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.back-btn {
+  padding: 10px 18px; border-radius: 12px; border: 1px solid var(--glass-border);
+  background: var(--glass); color: var(--text); cursor: pointer;
+  font-size: 0.85em; font-weight: 600; margin-bottom: 20px; transition: 0.25s;
+  font-family: 'Space Grotesk', sans-serif; display: inline-flex;
+  align-items: center; gap: 6px;
+}
+.back-btn:hover { background: rgba(255,255,255,0.08); transform: translateX(-3px); }
+
+.form-card {
+  background: linear-gradient(145deg, rgba(20,10,40,0.85), rgba(10,5,25,0.9));
+  border: 1px solid var(--glass-border); border-radius: 20px; padding: 32px;
+  position: relative; overflow: hidden;
+}
+.form-card::before {
+  content: ''; position: absolute; top:0;left:0;right:0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-purple), transparent);
+}
+.form-card h2 { font-size: 1.4em; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.free-tag {
+  font-size: 0.55em; background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+  color: #000; padding: 5px 14px; border-radius: 20px; font-weight: 700;
+  letter-spacing: 1px; animation: pulseBadge 2s ease-in-out infinite;
+}
+@keyframes pulseBadge {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(0,255,136,0); }
+}
+.form-card .desc { color: var(--text-dim); font-size: 0.88em; margin-bottom: 26px; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+.form-field label {
+  display: block; font-size: 0.75em; color: var(--neon-cyan);
+  margin-bottom: 10px; font-weight: 600; letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.form-field input {
+  width: 100%; padding: 14px 16px; border-radius: 12px;
+  border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4);
+  color: var(--text); font-size: 0.95em; outline: none;
+  transition: all 0.3s; font-family: 'Space Grotesk', sans-serif;
+}
+.form-field input:focus {
+  border-color: var(--neon-cyan); background: rgba(0,0,0,0.6);
+  box-shadow: 0 0 0 4px rgba(0,242,254,0.1), 0 0 20px rgba(0,242,254,0.2);
+}
+.chip-group { display: flex; gap: 10px; flex-wrap: wrap; }
+.chip {
+  padding: 12px 22px; border-radius: 12px; cursor: pointer;
+  background: rgba(0,0,0,0.4); border: 1.5px solid var(--glass-border);
+  font-size: 0.88em; font-weight: 600; transition: all 0.25s; user-select: none;
+}
+.chip:hover { border-color: rgba(0,242,254,0.4); transform: translateY(-1px); }
+.chip.on {
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  color: #000; border-color: transparent;
+  box-shadow: 0 4px 20px rgba(0,242,254,0.4); transform: translateY(-1px);
+}
+.chip.locked { opacity: 0.35; cursor: not-allowed; position: relative; }
+.chip.locked::after { content: '🔒'; position: absolute; top: 2px; right: 4px; font-size: 0.7em; opacity: 0.8; }
+.chip.locked:hover { transform: none; border-color: var(--glass-border); }
+.btn-create {
+  width: 100%; margin-top: 26px; padding: 18px;
+  border-radius: 14px; border: none;
+  background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+  color: #000; font-weight: 700; font-size: 1.05em; cursor: pointer;
+  transition: all 0.3s; font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.5px; position: relative; overflow: hidden;
+}
+.btn-create::before {
+  content: ''; position: absolute; top:0;left:-100%; width:100%;height:100%;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent);
+  transition: left 0.6s;
+}
+.btn-create:hover::before { left: 100%; }
+.btn-create:hover { transform: translateY(-2px); box-shadow: 0 15px 50px rgba(0,255,136,0.4); }
+.btn-create:disabled { opacity: 0.7; cursor: wait; transform: none; }
+
+.panel-item {
+  background: linear-gradient(135deg, rgba(20,10,40,0.9), rgba(10,5,25,0.95));
+  border: 1px solid var(--glass-border); border-radius: 16px;
+  padding: 22px; margin-bottom: 14px; position: relative;
+  overflow: hidden; transition: all 0.3s;
+}
+.panel-item::before {
+  content: ''; position: absolute; left:0; top:0; bottom:0; width: 4px;
+  background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
+}
+.panel-item:hover { transform: translateX(4px); border-color: rgba(0,242,254,0.4); box-shadow: 0 10px 40px rgba(0,242,254,0.15); }
+.panel-item .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+.panel-item .name { font-weight: 700; font-size: 1.1em; }
+.panel-item .status {
+  font-size: 0.72em; padding: 5px 12px; border-radius: 20px;
+  background: rgba(0,255,136,0.15); color: var(--neon-green);
+  border: 1px solid rgba(0,255,136,0.3); font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+}
+.panel-item .status::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green);
+  animation: blink 1.5s ease-in-out infinite;
+}
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+.info-grid .item .lbl { font-size: 0.7em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.info-grid .item .val { font-size: 0.9em; font-weight: 600; word-break: break-all; font-family: 'JetBrains Mono', monospace; }
+.info-grid .item .val.green { color: var(--neon-green); }
+.info-grid .item .val.cyan { color: var(--neon-cyan); }
+.info-grid .item .val.gold { color: var(--neon-gold); }
+.empty { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+.empty .icon { font-size: 4em; margin-bottom: 15px; opacity: 0.4; animation: floatIcon 3s ease-in-out infinite; }
+@keyframes floatIcon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.empty .title { font-size: 1.1em; color: var(--text); font-weight: 600; margin-bottom: 6px; }
+.empty .sub { font-size: 0.85em; }
+
+.owner-server {
+  background: linear-gradient(135deg, rgba(30,15,50,0.8), rgba(15,5,30,0.9));
+  border: 1px solid rgba(255,214,10,0.15); border-radius: 16px;
+  padding: 20px; margin-bottom: 14px; transition: all 0.3s;
+}
+.owner-server:hover { border-color: rgba(255,214,10,0.3); }
+.owner-server .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+.owner-server .top b { color: var(--neon-gold); font-size: 1em; }
+.owner-server .free-hint {
+  font-size: 0.72em; color: var(--neon-green);
+  background: rgba(0,255,136,0.1); padding: 3px 10px;
+  border-radius: 10px; margin-left: 8px; border: 1px solid rgba(0,255,136,0.2);
+}
+.toggle { position: relative; width: 48px; height: 26px; border-radius: 26px; background: #2a2a3a; cursor: pointer; transition: all 0.3s; }
+.toggle.on { background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan)); box-shadow: 0 0 20px rgba(0,255,136,0.4); }
+.toggle::after {
+  content: ''; position: absolute; top:3px;left:3px; width: 20px; height: 20px;
+  border-radius: 50%; background: #fff; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.toggle.on::after { left: 25px; }
+.owner-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.owner-inputs.full { grid-template-columns: 1fr; }
+@media (max-width: 500px) { .owner-inputs { grid-template-columns: 1fr; } }
+.owner-inputs label { display: block; font-size: 0.72em; color: var(--neon-gold); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.owner-inputs input {
+  width: 100%; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid rgba(255,214,10,0.15); background: rgba(0,0,0,0.4);
+  color: var(--text); font-size: 0.88em; outline: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+.owner-inputs input:focus { border-color: var(--neon-gold); box-shadow: 0 0 0 3px rgba(255,214,10,0.1); }
+.btn-save {
+  padding: 14px 28px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--neon-gold), var(--neon-pink));
+  color: #000; font-weight: 700; cursor: pointer; font-size: 0.95em;
+  margin-top: 20px; transition: all 0.3s; font-family: 'Space Grotesk', sans-serif;
+}
+.btn-save:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,214,10,0.4); }
+
+.role-user-card {
+  background: linear-gradient(135deg, rgba(30,15,50,0.85), rgba(15,5,30,0.95));
+  border: 1px solid rgba(255,214,10,0.15); border-radius: 14px;
+  padding: 18px 20px; margin-bottom: 12px; position: relative;
+  overflow: hidden; display: flex; align-items: center; gap: 16px;
+  flex-wrap: wrap; transition: all 0.3s;
+}
+.role-user-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: linear-gradient(180deg, var(--neon-gold), var(--neon-pink));
+}
+.role-user-card:hover { border-color: rgba(255,214,10,0.4); transform: translateX(4px); box-shadow: 0 10px 30px rgba(255,214,10,0.15); }
+.role-user-card .avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.1em; color: #000;
+  background: linear-gradient(135deg, var(--neon-gold), var(--neon-pink));
+  flex-shrink: 0; box-shadow: 0 0 20px rgba(255,214,10,0.3);
+}
+.role-user-card .info { flex: 1; min-width: 150px; }
+.role-user-card .info .username { font-weight: 700; font-size: 0.98em; margin-bottom: 3px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.role-user-card .info .tg { font-size: 0.78em; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+.role-tag {
+  font-size: 0.68em; font-weight: 700; padding: 4px 10px;
+  border-radius: 20px; text-transform: uppercase;
+  letter-spacing: 0.5px; border: 1px solid;
+}
+.role-tag.reseller { color: #4facfe; background: rgba(79,172,254,0.15); border-color: rgba(79,172,254,0.4); }
+.role-tag.premium { color: #00f2fe; background: rgba(0,242,254,0.15); border-color: rgba(0,242,254,0.4); }
+.role-tag.partner { color: #a855f7; background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4); }
+.role-tag.allrole { color: #00ff88; background: rgba(0,255,136,0.15); border-color: rgba(0,255,136,0.4); }
+.role-tag.highowner { color: #ffd60a; background: rgba(255,214,10,0.15); border-color: rgba(255,214,10,0.4); }
+.role-tag.admin { color: #ff2e97; background: rgba(255,46,151,0.15); border-color: rgba(255,46,151,0.4); }
+.role-tag.owner { color: #ffd60a; background: linear-gradient(90deg, rgba(255,214,10,0.2), rgba(255,46,151,0.2)); border-color: rgba(255,214,10,0.5); box-shadow: 0 0 15px rgba(255,214,10,0.3); }
+.role-user-card .actions { display: flex; gap: 8px; flex-shrink: 0; }
+.role-user-card .actions button {
+  padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05); color: var(--text);
+  font-size: 0.78em; font-weight: 600; cursor: pointer; transition: all 0.25s;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.role-user-card .actions button:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
+.role-user-card .actions button.del { color: var(--neon-pink); border-color: rgba(255,46,151,0.3); }
+.role-user-card .actions button.del:hover { background: rgba(255,46,151,0.15); }
+
+.role-access-btn {
+  display: none; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 12px;
+  border: 1.5px solid; cursor: pointer;
+  font-weight: 700; font-size: 0.85em; transition: all 0.3s;
+  font-family: 'Space Grotesk', sans-serif; position: relative;
+  overflow: hidden; letter-spacing: 0.3px;
+}
+.role-access-btn.show { display: inline-flex; }
+.role-access-btn:hover { transform: translateY(-2px); }
+.role-access-btn::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s;
+}
+.role-access-btn:hover::before { left: 100%; }
+.role-access-btn.partner { background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.3)); border-color: rgba(168,85,247,0.6); color: #a855f7; box-shadow: 0 4px 20px rgba(168,85,247,0.3); }
+.role-access-btn.allrole { background: linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,242,254,0.2)); border-color: rgba(0,255,136,0.5); color: #00ff88; box-shadow: 0 4px 20px rgba(0,255,136,0.3); }
+.role-access-btn.highowner { background: linear-gradient(135deg, rgba(255,214,10,0.15), rgba(255,46,151,0.15)); border-color: rgba(255,214,10,0.5); color: #ffd60a; box-shadow: 0 4px 20px rgba(255,214,10,0.3); }
+.role-access-btn.admin { background: linear-gradient(135deg, rgba(255,46,151,0.15), rgba(255,46,151,0.25)); border-color: rgba(255,46,151,0.5); color: #ff2e97; box-shadow: 0 4px 20px rgba(255,46,151,0.3); }
+.role-access-btn.owner { background: linear-gradient(135deg, rgba(255,214,10,0.2), rgba(255,46,151,0.2)); border-color: rgba(255,214,10,0.6); color: #ffd60a; box-shadow: 0 4px 25px rgba(255,214,10,0.4); animation: ctaPulse 3s ease-in-out infinite; }
+
+/* UP ROLE PAGE */
+.uprole-hero {
+  background: linear-gradient(135deg, rgba(255,214,10,0.1), rgba(255,46,151,0.1));
+  border: 1.5px solid rgba(255,214,10,0.3);
+  border-radius: 20px; padding: 32px; margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.uprole-hero::before {
+  content: ''; position: absolute; top: -50%; right: -20%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(255,214,10,0.2), transparent 70%);
+  pointer-events: none;
+}
+.uprole-hero::after {
+  content: ''; position: absolute; bottom: -50%; left: -20%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(255,46,151,0.15), transparent 70%);
+  pointer-events: none;
+}
+.uprole-hero h2 { font-size: 1.6em; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; }
+.uprole-hero .sub { color: var(--text-dim); font-size: 0.88em; margin-bottom: 24px; position: relative; z-index: 1; }
+
+.role-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 24px; position: relative; z-index: 1; }
+.role-card {
+  background: linear-gradient(145deg, rgba(20,10,40,0.9), rgba(10,5,25,0.95));
+  border: 1.5px solid var(--glass-border);
+  border-radius: 16px; padding: 20px; cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative; overflow: hidden;
+}
+.role-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: transparent; transition: all 0.3s;
+}
+.role-card:hover { transform: translateY(-4px); border-color: rgba(255,214,10,0.4); box-shadow: 0 15px 40px rgba(255,214,10,0.2); }
+.role-card:hover::before { background: linear-gradient(90deg, var(--neon-gold), var(--neon-pink)); }
+.role-card.selected {
+  border-color: var(--neon-gold);
+  background: linear-gradient(145deg, rgba(255,214,10,0.15), rgba(255,46,151,0.15));
+  box-shadow: 0 15px 50px rgba(255,214,10,0.4);
+  transform: translateY(-4px);
+}
+.role-card.selected::before { background: linear-gradient(90deg, var(--neon-gold), var(--neon-pink)); height: 4px; }
+.role-card.locked { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+.role-card.locked::after {
+  content: '🔒 TERKUNCI'; position: absolute; top: 12px; right: 12px;
+  font-size: 0.65em; font-weight: 700; padding: 4px 10px;
+  border-radius: 20px; background: rgba(255,46,151,0.2);
+  color: var(--neon-pink); border: 1px solid rgba(255,46,151,0.4);
+  letter-spacing: 0.5px;
+}
+.role-card .rc-icon { font-size: 2.2em; margin-bottom: 12px; filter: drop-shadow(0 0 10px currentColor); }
+.role-card .rc-name { font-size: 1.1em; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.role-card .rc-desc { font-size: 0.8em; color: var(--text-dim); margin-bottom: 14px; min-height: 34px; line-height: 1.4; }
+.role-card .rc-price { font-size: 1.15em; font-weight: 700; color: var(--neon-gold); font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 6px; }
+.role-card .rc-price .lbl { font-size: 0.65em; color: var(--text-dim); font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.role-card .check {
+  position: absolute; top: 12px; right: 12px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-gold), var(--neon-pink));
+  color: #000; display: none; align-items: center; justify-content: center;
+  font-size: 0.9em; font-weight: 700; box-shadow: 0 0 20px rgba(255,214,10,0.6);
+}
+.role-card.selected .check { display: flex; animation: checkPop 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes checkPop { 0%{transform:scale(0) rotate(-90deg)} 100%{transform:scale(1) rotate(0)} }
+
+.msg-preview {
+  background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(10,5,25,0.7));
+  border: 1.5px dashed rgba(255,214,10,0.3);
+  border-radius: 16px; padding: 20px; margin-bottom: 20px;
+  position: relative; z-index: 1;
+}
+.msg-preview .label { font-size: 0.72em; color: var(--neon-gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.msg-preview .content {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.82em; line-height: 1.7;
+  color: var(--text); white-space: pre-wrap; word-break: break-word; padding: 14px;
+  background: rgba(0,0,0,0.3); border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.05); max-height: 200px; overflow-y: auto;
+}
+.msg-preview .content .hl { color: var(--neon-cyan); font-weight: 700; }
+.msg-preview .content .price { color: var(--neon-gold); font-weight: 700; }
+
+.btn-wa {
+  width: 100%; padding: 20px; border-radius: 16px; border: none;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: #fff; font-weight: 700; font-size: 1.1em; cursor: pointer;
+  transition: all 0.3s; font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center;
+  gap: 12px; position: relative; overflow: hidden;
+  box-shadow: 0 15px 50px rgba(37,211,102,0.4);
+  animation: waPulse 3s ease-in-out infinite;
+}
+@keyframes waPulse {
+  0%,100% { box-shadow: 0 15px 50px rgba(37,211,102,0.4); }
+  50% { box-shadow: 0 20px 70px rgba(37,211,102,0.6); }
+}
+.btn-wa::before {
+  content: ''; position: absolute; top:0;left:-100%; width:100%;height:100%;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+  transition: left 0.7s;
+}
+.btn-wa:hover::before { left: 100%; }
+.btn-wa:hover { transform: translateY(-3px) scale(1.01); }
+.btn-wa:disabled { background: linear-gradient(135deg, #555, #333); cursor: not-allowed; animation: none; opacity: 0.5; box-shadow: none; }
+.btn-wa .wa-icon { font-size: 1.5em; }
+.btn-wa .arrow { font-size: 1.2em; transition: transform 0.3s; }
+.btn-wa:hover .arrow { transform: translateX(4px); }
+
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: linear-gradient(135deg, rgba(0,255,136,0.95), rgba(0,242,254,0.95));
+  color: #000; padding: 14px 28px; border-radius: 30px;
+  font-weight: 700; z-index: 3000; transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+  max-width: 90%; text-align: center; box-shadow: 0 15px 50px rgba(0,255,136,0.5);
+  font-size: 0.9em; opacity: 0; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.err { background: linear-gradient(135deg, rgba(255,46,151,0.95), rgba(255,80,80,0.95)); color: #fff; box-shadow: 0 15px 50px rgba(255,46,151,0.5); }
+.toast.gold { background: linear-gradient(135deg, rgba(255,214,10,0.95), rgba(255,46,151,0.95)); color: #000; box-shadow: 0 15px 50px rgba(255,214,10,0.6); }
+
+.spinner {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid rgba(0,0,0,0.3); border-top-color: #000;
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+  margin-right: 6px; vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* UPGRADE ROLE PAGE (OWNER) */
+.upgrade-step {
+  display: flex; gap: 16px; padding: 20px;
+  background: rgba(0,0,0,0.2); border: 1px solid rgba(255,214,10,0.15);
+  border-radius: 14px; margin-bottom: 14px; align-items: flex-start;
+}
+.step-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-gold), var(--neon-pink));
+  color: #000; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.9em; flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(255,214,10,0.4);
+}
+.step-body { flex: 1; }
+.step-body > label {
+  display: block; font-size: 0.72em; color: var(--neon-gold);
+  text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+}
+.btn-lookup {
+  padding: 14px 24px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  color: #000; font-weight: 700; cursor: pointer; font-size: 0.95em;
+  font-family: 'Space Grotesk', sans-serif; transition: 0.3s; white-space: nowrap;
+}
+.btn-lookup:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,242,254,0.4); }
+.user-found-card {
+  background: linear-gradient(135deg, rgba(255,214,10,0.1), rgba(255,46,151,0.1));
+  border: 1.5px solid rgba(255,214,10,0.4); border-radius: 14px;
+  padding: 18px; margin-top: 10px; display: flex;
+  align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.user-found-card .avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-gold), var(--neon-pink));
+  color: #000; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.3em;
+  box-shadow: 0 0 25px rgba(255,214,10,0.5); flex-shrink: 0;
+}
+.user-found-card .info { flex: 1; min-width: 180px; }
+.user-found-card .info .uname {
+  font-weight: 700; font-size: 1.05em; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.user-found-card .info .meta { font-size: 0.8em; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+.btn-upgrade {
+  width: 100%; padding: 18px; border-radius: 14px; border: none;
+  background: linear-gradient(135deg, var(--neon-gold), var(--neon-pink));
+  color: #000; font-weight: 700; font-size: 1.05em; cursor: pointer;
+  margin-top: 16px; transition: all 0.3s; font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.5px; position: relative; overflow: hidden;
+  box-shadow: 0 8px 30px rgba(255,214,10,0.3);
+}
+.btn-upgrade::before {
+  content: ''; position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+  transition: left 0.6s;
+}
+.btn-upgrade:hover::before { left: 100%; }
+.btn-upgrade:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 50px rgba(255,214,10,0.5); }
+.btn-upgrade:disabled { opacity: 0.4; cursor: not-allowed; background: #333; color: #666; box-shadow: none; }
+.upgrade-warn { padding: 12px 16px; border-radius: 10px; font-size: 0.82em; line-height: 1.5; }
+.upgrade-warn.info { background: rgba(79,172,254,0.1); border: 1px solid rgba(79,172,254,0.3); color: var(--neon-blue); }
+.upgrade-history-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+  margin-bottom: 10px; transition: all 0.3s; flex-wrap: wrap;
+}
+.upgrade-history-item:hover { border-color: rgba(255,214,10,0.3); transform: translateX(4px); }
+.upgrade-history-item .arrow-flow { display: flex; align-items: center; gap: 8px; font-size: 0.85em; }
+.upgrade-history-item .time { margin-left: auto; font-size: 0.72em; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+#mainDashboard, #buatHostingPage, #myPanelsPage, #ownerPage, #rolesPage, #uprolePage, #upgraderolePage { display: none; }
+#mainDashboard.show, #buatHostingPage.show, #myPanelsPage.show, #ownerPage.show, #rolesPage.show, #uprolePage.show, #upgraderolePage.show { display: block; animation: pageIn 0.4s ease; }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="bg-glow g1"></div>
+<div class="bg-glow g2"></div>
+<div class="bg-glow g3"></div>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <div class="login-wrap" id="loginBox">
+    <div class="login-card">
+      <div class="login-logo">⚡</div>
+      <h1 class="gradient-text">Auto Order Panel</h1>
+      <p class="sub">Sistem pembuatan panel termudah · 100% Gratis</p>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="loginUsername" placeholder="Nama bebas (contoh: Andi)" maxlength="30">
+      </div>
+      <div class="field">
+        <label>ID Telegram <span style="color:var(--neon-pink)">*wajib</span></label>
+        <input type="text" id="loginTelegram" placeholder="@username atau 123456789">
+        <small>Contoh: @andi123 atau 123456789</small>
+      </div>
+      <button class="btn-primary" onclick="doLogin()">🚀 Masuk Sekarang</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="left-group">
+        <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" title="Menu">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="logo"><span class="bolt">⚡</span> Auto Order Panel</div>
+      </div>
+      <div class="right">
+        <button class="mini-btn" onclick="showPage('myPanels')">📋 Panel Saya</button>
+        <button class="mini-btn" id="topRoleBtn" onclick="showPage('roles')" style="display:none;">🎭 Buat Role</button>
+        <button class="mini-btn" id="topUproleBtn" onclick="showPage('uprole')" style="display:none;">💎 Up Role</button>
+        <button class="mini-btn danger" onclick="doLogout()">🚪</button>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand"><span class="crown">👑</span> Menu</div>
+        <button class="close-btn" onclick="closeSidebar()">✕</button>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" id="sidebarAvatar">U</div>
+        <div class="info">
+          <div class="name" id="sidebarName">User</div>
+          <div class="role" id="sidebarRole">USER</div>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="section-label">Menu</div>
+        <button class="sidebar-item" onclick="openSidebarMenu('dashboard')">
+          <span class="icon">🏠</span><span>Dashboard</span><span class="arrow">→</span>
+        </button>
+        <button class="sidebar-item" onclick="openSidebarMenu('buatHosting')">
+          <span class="icon">🚀</span><span>Buat Hosting</span><span class="arrow">→</span>
+        </button>
+        <button class="sidebar-item" onclick="openSidebarMenu('myPanels')">
+          <span class="icon">📋</span><span>Panel Saya</span><span class="arrow">→</span>
+        </button>
+        <button class="sidebar-item" id="sidebarUproleMenu" onclick="openSidebarMenu('uprole')" style="display:none;">
+          <span class="icon">💎</span><span>Up Role</span><span class="arrow">→</span>
+        </button>
+        <button class="sidebar-item" id="sidebarRoleMenu" onclick="openSidebarMenu('roles')" style="display:none;">
+          <span class="icon">🎭</span><span>Kelola Role</span><span class="arrow">→</span>
+        </button>
+        <button class="sidebar-item" id="sidebarOwnerMenu" onclick="openSidebarMenu('owner')" style="display:none;">
+          <span class="icon">⚙️</span><span>Owner Settings</span><span class="arrow">→</span>
+        </button>
+        <button class="sidebar-item" id="sidebarUpgradeMenu" onclick="openSidebarMenu('upgraderole')" style="display:none;">
+          <span class="icon">⬆️</span><span>Upgrade Role User</span><span class="arrow">→</span>
+        </button>
+      </div>
+      <div class="sidebar-section" style="padding-top:0;">
+        <div class="section-label">Akun</div>
+        <button class="sidebar-item danger" onclick="doLogout()">
+          <span class="icon">🚪</span><span>Keluar</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="mainDashboard" class="show">
+      <div class="hero">
+        <div class="hero-greet">Selamat Datang</div>
+        <h1 class="gradient-text">
+          Halo <span id="heroUsername">User</span> <span class="wave">👋</span>
+        </h1>
+        <div class="hero-role" id="heroRole">
+          <span class="dot"></span>
+          <span>Role : <span class="role-name" id="heroRoleName">user</span></span>
+        </div>
+        <div class="hero-actions">
+          <button class="cta-buat" onclick="showPage('buatHosting')">
+            <span class="icon">🚀</span>
+            <span>Buat Hosting</span>
+            <span class="arrow">→</span>
+          </button>
+          <button class="cta-uprole" id="heroUproleBtn" onclick="showPage('uprole')">
+            <span class="icon">💎</span>
+            <span>Up Role</span>
+            <span class="arrow">→</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="icon">📦</div>
+          <div class="value gradient-text" id="statTotal">0</div>
+          <div class="label">Panel Dibuat</div>
+        </div>
+        <div class="stat-card green">
+          <div class="icon">🟢</div>
+          <div class="value gradient-text" id="statActive">1</div>
+          <div class="label">Server Aktif</div>
+        </div>
+        <div class="stat-card pink">
+          <div class="icon">⚡</div>
+          <div class="value gradient-text">4</div>
+          <div class="label">Total Server</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="icon">🎁</div>
+          <div class="value gradient-text">FREE</div>
+          <div class="label">Biaya Hosting</div>
+        </div>
+      </div>
+
+      <div class="section-title"><div class="bar"></div> Quick Actions</div>
+      <div class="actions">
+        <div class="action-card" onclick="showPage('buatHosting')">
+          <div class="ac-icon">🚀</div>
+          <h3>Buat Hosting</h3>
+          <p>Bikin panel hosting baru dalam hitungan detik</p>
+          <div class="arrow-hover">→</div>
+        </div>
+        <div class="action-card" onclick="showPage('myPanels')">
+          <div class="ac-icon">📋</div>
+          <h3>Panel Saya</h3>
+          <p>Lihat semua panel yang sudah kamu buat</p>
+          <div class="arrow-hover">→</div>
+        </div>
+        <div class="action-card" id="actionUprole" onclick="showPage('uprole')" style="display:none;">
+          <div class="ac-icon">💎</div>
+          <h3>Up Role</h3>
+          <p>Upgrade role kamu jadi lebih tinggi</p>
+          <div class="arrow-hover">→</div>
+        </div>
+        <div class="action-card" id="actionOwner" onclick="showPage('owner')" style="display:none;">
+          <div class="ac-icon">⚙️</div>
+          <h3>Owner Settings</h3>
+          <p>Atur PLTA, PLTC, dan URL server</p>
+          <div class="arrow-hover">→</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUAT HOSTING -->
+    <div id="buatHostingPage">
+      <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+      <div class="form-card">
+        <h2>🚀 Buat Hosting Baru <span class="free-tag">FREE</span></h2>
+        <p class="desc">Semua pengguna bisa membuat hosting gratis.</p>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>📝 Nama Panel</label>
+            <input type="text" id="panelName" placeholder="Contoh: Panel Andi" maxlength="40">
+          </div>
+          <div class="form-field">
+            <label>🖥️ Pilih Server</label>
+            <div class="chip-group" id="serverSelect"></div>
+          </div>
+          <div class="form-field">
+            <label>💾 RAM</label>
+            <div class="chip-group" id="ramOptions">
+              <div class="chip" data-val="1gb">1 GB</div>
+              <div class="chip on" data-val="unli">Unlimited</div>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>⚙️ Bahasa / Runtime</label>
+            <div class="chip-group" id="langOptions">
+              <div class="chip on" data-val="nodejs">Node.js</div>
+              <div class="chip" data-val="python">Python</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-create" id="btnCreate" onclick="createPanel()">🚀 Buat Sekarang</button>
+      </div>
+    </div>
+
+    <!-- MY PANELS -->
+    <div id="myPanelsPage">
+      <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+      <div class="form-card">
+        <h2>📋 Panel Yang Berhasil Dibuat</h2>
+        <p class="desc">Semua panel yang kamu buat akan muncul di sini.</p>
+        <div id="myPanelsList"></div>
+      </div>
+    </div>
+
+    <!-- OWNER SETTINGS -->
+    <div id="ownerPage">
+      <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+      <div class="form-card">
+        <h2 class="gradient-text">⚙️ Owner Settings</h2>
+        <p class="desc">Atur PLTA, PLTC, dan URL Server V1–V4.</p>
+        <div id="ownerServerList"></div>
+        <button class="btn-save" onclick="saveOwnerSettings()">💾 Simpan Semua Pengaturan</button>
+      </div>
+    </div>
+
+    <!-- ROLES -->
+    <div id="rolesPage">
+      <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+      <div class="form-card">
+        <h2 class="gradient-text">🎭 Kelola Role User</h2>
+        <p class="desc">Berikan role ke user hanya dengan ID Telegram.</p>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>🎭 Pilih Role</label>
+            <div class="chip-group" id="rolePicker"></div>
+          </div>
+          <div class="form-field">
+            <label>📱 ID Telegram User</label>
+            <input type="text" id="roleTelegram" placeholder="@username atau 123456789">
+          </div>
+        </div>
+        <button class="btn-create" id="btnCreateRole" onclick="createRole()">✨ Berikan Role Sekarang</button>
+        <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,10,0.3),transparent);margin:30px 0;"></div>
+        <div class="section-title" style="margin-bottom:16px;">
+          <div class="bar" style="background:linear-gradient(180deg,var(--neon-gold),var(--neon-pink));"></div>
+          📋 User dengan Role Aktif
+        </div>
+        <div id="rolesList"></div>
+      </div>
+    </div>
+
+    <!-- UP ROLE (USER) -->
+    <div id="uprolePage">
+      <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+      <div class="uprole-hero">
+        <h2 class="gradient-text">💎 Up Role Premium</h2>
+        <p class="sub">Pilih role yang mau kamu up, lalu chat owner via WhatsApp.</p>
+        <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,214,10,0.2);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:relative;z-index:1;">
+          <span style="font-size:0.85em;color:var(--text-dim);">Role kamu sekarang:</span>
+          <span class="role-tag" id="currentRoleTag" style="font-size:0.85em;padding:6px 14px;">USER</span>
+          <span style="margin-left:auto;font-size:0.75em;color:var(--text-dim);">📱 <span id="currentTgDisplay">-</span></span>
+        </div>
+        <div class="role-grid" id="uproleGrid"></div>
+        <div class="msg-preview">
+          <div class="label">📝 Preview Pesan WhatsApp</div>
+          <div class="content" id="msgPreview">
+            <em style="color:var(--text-dim)">Pilih role di atas untuk melihat preview pesan...</em>
+          </div>
+        </div>
+        <button class="btn-wa" id="btnWa" onclick="chatOwnerWa()" disabled>
+          <span class="wa-icon">📱</span>
+          <span>Chat Owner di WhatsApp</span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- UPGRADE ROLE (OWNER) -->
+    <div id="upgraderolePage">
+      <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+      <div class="form-card">
+        <h2 class="gradient-text">⬆️ Upgrade Role User</h2>
+        <p class="desc">Cari user dengan ID Telegram, sistem auto-detect, lalu upgrade role.</p>
+
+        <div class="upgrade-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <label>📱 ID Telegram User</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+              <input type="text" id="upgradeTelegram" placeholder="@username atau 123456789"
+                     style="flex:1;min-width:200px;padding:14px 16px;border-radius:12px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.4);color:var(--text);font-size:0.95em;font-family:'JetBrains Mono',monospace;"
+                     onkeypress="if(event.key==='Enter') lookupUser()">
+              <button class="btn-lookup" onclick="lookupUser()">🔍 Cari User</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="upgradeUserInfo" style="display:none;">
+          <div class="upgrade-step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <label>👤 User Ditemukan</label>
+              <div class="user-found-card" id="userFoundCard"></div>
+            </div>
+          </div>
+          <div class="upgrade-step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <label>⬆️ Pilih Role Baru</label>
+              <div class="chip-group" id="upgradeRolePicker" style="margin-top:10px;"></div>
+              <div id="upgradeWarn" style="margin-top:12px;font-size:0.82em;display:none;"></div>
+            </div>
+          </div>
+          <button class="btn-upgrade" id="btnDoUpgrade" onclick="doUpgradeRole()" disabled>⬆️ Upgrade Role Sekarang</button>
+        </div>
+
+        <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,10,0.3),transparent);margin:30px 0;"></div>
+        <div class="section-title" style="margin-bottom:16px;">
+          <div class="bar" style="background:linear-gradient(180deg,var(--neon-gold),var(--neon-pink));"></div>
+          📜 Riwayat Upgrade Role
+        </div>
+        <div id="upgradeHistoryList"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   OWNER UTAMA (HARDCODED)
+============================================================ */
+const OWNER_UTAMA = {
+  telegram: '8753425748',
+  username: 'Garzxxiterz',
+  role: 'owner'
+};
+
+function isOwnerUtama(telegram) {
+  return telegram === OWNER_UTAMA.telegram;
+}
+
+/* ============================================================
+   ROLE SYSTEM
+============================================================ */
+const ROLE_LEVELS = {
+  user: 0, reseller: 1, premium: 2, partner: 3,
+  allrole: 4, highowner: 5, admin: 6, owner: 7
+};
+
+const ROLE_INFO = {
+  reseller:  { icon: '🛒', name: 'Reseller',  desc: 'Akses dasar & bisa buat panel' },
+  premium:   { icon: '💎', name: 'Premium',   desc: 'Fitur lebih lengkap & prioritas' },
+  partner:   { icon: '🤝', name: 'Partner',   desc: 'Bisa buat admin panel & jual role' },
+  allrole:   { icon: '🌐', name: 'All Role',  desc: 'Bisa jual semua role panel' },
+  admin:     { icon: '🛡️', name: 'Admin',    desc: 'Admin penuh kecuali owner' },
+  highowner: { icon: '👑', name: 'High Owner',desc: 'Akses tinggi bisa jual role' },
+  owner:     { icon: '🔱', name: 'Owner',     desc: 'Owner utama (tidak bisa di-up)' }
+};
+
+// HARGA UP ROLE (chain linear)
+const UPGRADE_PRICES = {
+  'reseller->premium':  2000,
+  'premium->partner':   4000,
+  'partner->allrole':   6500,
+  'allrole->admin':     7000,
+  'admin->highowner':   8000
+};
+
+function getUpgradePrice(fromRole, toRole) {
+  return UPGRADE_PRICES[`${fromRole}->${toRole}`] || 0;
+}
+
+// Nomor WhatsApp Owner (GANTI DENGAN NOMOR ASLI)
+const OWNER_WA_NUMBER = '6281234567890';
+
+/* ============================================================
+   STATE
+============================================================ */
+let currentUser = null;
+let serverConfig = {
+  v1: { on: true,  name: 'V1', plta: 'PLTA-V1', pltc: 'PLTC-V1', url: 'https://v1.server.com', isPublic: true },
+  v2: { on: false, name: 'V2', plta: 'PLTA-V2', pltc: 'PLTC-V2', url: 'https://v2.server.com', isPublic: false },
+  v3: { on: false, name: 'V3', plta: 'PLTA-V3', pltc: 'PLTC-V3', url: 'https://v3.server.com', isPublic: false },
+  v4: { on: false, name: 'V4', plta: 'PLTA-V4', pltc: 'PLTC-V4', url: 'https://v4.server.com', isPublic: false },
+};
+let userPanels = JSON.parse(localStorage.getItem('userPanels') || '{}');
+let roleUsers = JSON.parse(localStorage.getItem('roleUsers') || '{}');
+let upgradeHistory = JSON.parse(localStorage.getItem('upgradeHistory') || '[]');
+const savedConfig = localStorage.getItem('serverConfig');
+if (savedConfig) { try { serverConfig = JSON.parse(savedConfig); } catch(e) {} }
+let formState = { server: null, ram: 'unli', lang: 'nodejs' };
+let roleFormState = { role: 'premium' };
+let selectedUproleRole = null;
+let upgradeState = { user: null, newRole: null };
+
+/* ============================================================
+   BG PARTICLES
+============================================================ */
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+for (let i = 0; i < 60; i++) {
+  particles.push({
+    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
+    r: Math.random() * 2 + 0.5, hue: Math.random() * 60 + 180
+  });
+}
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${p.hue}, 100%, 65%, 0.7)`; ctx.fill();
+  });
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 120) {
+        ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `hsla(200, 100%, 65%, ${0.15 * (1 - dist/120)})`;
+        ctx.lineWidth = 0.5; ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+/* ============================================================
+   PERMISSION HELPERS
+============================================================ */
+function canCreateRole(userRole) { return ROLE_LEVELS[userRole] >= ROLE_LEVELS.partner; }
+function getAvailableRoles(userRole) {
+  if (userRole === 'owner') return ['reseller','premium','partner','allrole','highowner','admin'];
+  const userLevel = ROLE_LEVELS[userRole];
+  return Object.keys(ROLE_LEVELS).filter(r => r !== 'user' && r !== 'owner' && ROLE_LEVELS[r] < userLevel);
+}
+function canCreateThisRole(userRole, targetRole) {
+  if (targetRole === 'owner' || targetRole === 'user') return false;
+  if (userRole === 'owner') return true;
+  return ROLE_LEVELS[userRole] > ROLE_LEVELS[targetRole];
+}
+function canUprole(userRole) { return ROLE_LEVELS[userRole] >= ROLE_LEVELS.reseller; }
+function isOwnerUser(user) {
+  if (!user) return false;
+  return user.role === 'owner' && isOwnerUtama(user.telegram);
+}
+
+/* ============================================================
+   LOGIN
+============================================================ */
+function doLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const telegram = document.getElementById('loginTelegram').value.trim();
+
+  if (!username) return showToast('❌ Username wajib diisi!', true);
+  if (!telegram) return showToast('❌ ID Telegram wajib diisi!', true);
+  if (!/^(@[a-zA-Z0-9_]{3,}|[0-9]{5,})$/.test(telegram)) {
+    return showToast('❌ Format Telegram tidak valid!', true);
+  }
+
+  let role = 'user';
+  let finalUsername = username;
+
+  if (isOwnerUtama(telegram)) {
+    role = 'owner';
+    finalUsername = OWNER_UTAMA.username;
+  } else if (roleUsers[telegram]) {
+    role = roleUsers[telegram].role;
+    finalUsername = roleUsers[telegram].username || username;
+  }
+
+  currentUser = { username: finalUsername, telegram, role };
+  localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+  document.getElementById('loginBox').style.display = 'none';
+  document.getElementById('dashboard').classList.add('show');
+
+  document.getElementById('heroUsername').textContent = finalUsername;
+  document.getElementById('heroRoleName').textContent = role;
+  const heroRoleEl = document.getElementById('heroRole');
+  heroRoleEl.className = 'hero-role';
+  if (['owner','highowner','admin'].includes(role)) heroRoleEl.classList.add(role);
+
+  const hamburger = document.getElementById('hamburgerBtn');
+  const sidebarRoleMenu = document.getElementById('sidebarRoleMenu');
+  const sidebarUproleMenu = document.getElementById('sidebarUproleMenu');
+  const sidebarOwnerMenu = document.getElementById('sidebarOwnerMenu');
+  const sidebarUpgradeMenu = document.getElementById('sidebarUpgradeMenu');
+
+  if (canCreateRole(role) || canUprole(role) || role === 'owner') {
+    hamburger.classList.add('show');
+    document.getElementById('sidebarName').textContent = finalUsername;
+    document.getElementById('sidebarRole').textContent = (role === 'owner' && isOwnerUtama(telegram)) ? 'OWNER UTAMA 👑' : role.toUpperCase();
+    document.getElementById('sidebarAvatar').textContent = finalUsername.charAt(0).toUpperCase();
+
+    const avatar = document.getElementById('sidebarAvatar');
+    const gradients = {
+      owner: 'linear-gradient(135deg, #ffd60a, #ff2e97)',
+      highowner: 'linear-gradient(135deg, #ffd60a, #ff2e97)',
+      admin: 'linear-gradient(135deg, #ff2e97, #a855f7)',
+      allrole: 'linear-gradient(135deg, #00ff88, #00f2fe)',
+      partner: 'linear-gradient(135deg, #a855f7, #4facfe)',
+      premium: 'linear-gradient(135deg, #00f2fe, #4facfe)',
+      reseller: 'linear-gradient(135deg, #4facfe, #a855f7)'
+    };
+    avatar.style.background = gradients[role] || gradients.partner;
+  }
+
+  if (canCreateRole(role)) {
+    document.getElementById('topRoleBtn').style.display = 'inline-block';
+    sidebarRoleMenu.style.display = 'flex';
+  }
+  if (canUprole(role)) {
+    document.getElementById('topUproleBtn').style.display = 'inline-block';
+    document.getElementById('heroUproleBtn').classList.add('show');
+    document.getElementById('actionUprole').style.display = 'block';
+    sidebarUproleMenu.style.display = 'flex';
+  }
+  if (role === 'owner') {
+    document.getElementById('actionOwner').style.display = 'block';
+    sidebarOwnerMenu.style.display = 'flex';
+    if (sidebarUpgradeMenu) sidebarUpgradeMenu.style.display = 'flex';
+  }
+
+  initServerSelect();
+  renderOwnerSettings();
+  renderMyPanels();
+  updateStats();
+  showPage('dashboard');
+
+  if (role === 'owner' && isOwnerUtama(telegram)) {
+    showToast('👑 Selamat datang Owner Utama, Garzxxiterz! 🎉', false, true);
+  } else {
+    showToast('✨ Selamat datang, ' + finalUsername + '! 🎉');
+  }
+}
+
+function doLogout() {
+  if (!confirm('Yakin ingin keluar?')) return;
+  currentUser = null;
+  localStorage.removeItem('currentUser');
+  document.getElementById('dashboard').classList.remove('show');
+  document.getElementById('loginBox').style.display = 'flex';
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginTelegram').value = '';
+  document.getElementById('hamburgerBtn').classList.remove('show', 'active');
+  closeSidebar();
+}
+
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('currentUser');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      document.getElementById('loginUsername').value = currentUser.username;
+      document.getElementById('loginTelegram').value = currentUser.telegram;
+      doLogin();
+    } catch(e) {}
+  }
+});
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+function showPage(page) {
+  const pages = ['mainDashboard','buatHostingPage','myPanelsPage','ownerPage','rolesPage','uprolePage','upgraderolePage'];
+  pages.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  });
+
+  if (page === 'dashboard') document.getElementById('mainDashboard').classList.add('show');
+  if (page === 'buatHosting') document.getElementById('buatHostingPage').classList.add('show');
+  if (page === 'myPanels') { document.getElementById('myPanelsPage').classList.add('show'); renderMyPanels(); }
+  if (page === 'owner') {
+    if (currentUser?.role !== 'owner') { showToast('❌ Hanya Owner!', true); return; }
+    document.getElementById('ownerPage').classList.add('show');
+    renderOwnerSettings();
+  }
+  if (page === 'roles') {
+    if (!canCreateRole(currentUser?.role)) {
+      showToast('❌ Role Anda tidak bisa membuat role!', true);
+      document.getElementById('mainDashboard').classList.add('show'); return;
+    }
+    document.getElementById('rolesPage').classList.add('show');
+    renderRolePicker(); renderRolesList();
+  }
+  if (page === 'uprole') {
+    if (!canUprole(currentUser?.role)) {
+      showToast('❌ Role Anda belum bisa up role!', true);
+      document.getElementById('mainDashboard').classList.add('show'); return;
+    }
+    document.getElementById('uprolePage').classList.add('show');
+    renderUprolePage();
+  }
+  if (page === 'upgraderole') {
+    if (!isOwnerUser(currentUser)) {
+      showToast('❌ Hanya Owner Utama yang bisa upgrade role!', true);
+      document.getElementById('mainDashboard').classList.add('show'); return;
+    }
+    document.getElementById('upgraderolePage').classList.add('show');
+    renderUpgradeHistory();
+    upgradeState = { user: null, newRole: null };
+    document.getElementById('upgradeUserInfo').style.display = 'none';
+    document.getElementById('upgradeTelegram').value = '';
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openSidebarMenu(page) {
+  closeSidebar();
+  setTimeout(() => showPage(page), 250);
+}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  const burger = document.getElementById('hamburgerBtn');
+  if (sidebar.classList.contains('show')) {
+    closeSidebar();
+  } else {
+    sidebar.classList.add('show');
+    backdrop.classList.add('show');
+    burger.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('show');
+  document.getElementById('sidebarBackdrop').classList.remove('show');
+  document.getElementById('hamburgerBtn')?.classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+/* ============================================================
+   STATS
+============================================================ */
+function updateStats() {
+  const myList = userPanels[currentUser?.telegram] || [];
+  document.getElementById('statTotal').textContent = myList.length;
+  document.getElementById('statActive').textContent = Object.values(serverConfig).filter(s => s.on).length;
+}
+
+/* ============================================================
+   FORM PANEL
+============================================================ */
+function initServerSelect() {
+  const el = document.getElementById('serverSelect');
+  if (!el) return;
+  const available = Object.keys(serverConfig).filter(k => serverConfig[k].on);
+  if (available.length === 0) {
+    el.innerHTML = '<span style="color:var(--neon-pink);font-size:0.85em;">⚠️ Belum ada server aktif.</span>';
+    formState.server = null; return;
+  }
+  if (!formState.server || !serverConfig[formState.server]?.on) formState.server = available[0];
+  el.innerHTML = available.map(k => {
+    const s = serverConfig[k];
+    return `<div class="chip ${formState.server === k ? 'on' : ''}" data-server="${k}" onclick="pickServer('${k}')">${s.name}${s.isPublic ? ' 🎁' : ''}</div>`;
+  }).join('');
+}
+function pickServer(key) {
+  if (!serverConfig[key]?.on) return;
+  formState.server = key;
+  document.querySelectorAll('#serverSelect .chip').forEach(c => c.classList.toggle('on', c.dataset.server === key));
+}
+document.getElementById('ramOptions')?.addEventListener('click', e => {
+  const chip = e.target.closest('.chip'); if (!chip) return;
+  formState.ram = chip.dataset.val;
+  document.querySelectorAll('#ramOptions .chip').forEach(c => c.classList.toggle('on', c === chip));
+});
+document.getElementById('langOptions')?.addEventListener('click', e => {
+  const chip = e.target.closest('.chip'); if (!chip) return;
+  formState.lang = chip.dataset.val;
+  document.querySelectorAll('#langOptions .chip').forEach(c => c.classList.toggle('on', c === chip));
+});
+
+function createPanel() {
+  const name = document.getElementById('panelName').value.trim();
+  if (!name) return showToast('❌ Nama panel wajib diisi!', true);
+  if (!formState.server) return showToast('❌ Pilih server dulu!', true);
+  const btn = document.getElementById('btnCreate');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Membuat panel...';
+  setTimeout(() => {
+    const s = serverConfig[formState.server];
+    const newPanel = {
+      id: 'P' + Date.now(), name,
+      server: formState.server, serverName: s.name,
+      plta: s.plta, pltc: s.pltc, url: s.url,
+      ram: formState.ram, lang: formState.lang,
+      createdAt: new Date().toISOString(), status: 'active',
+      owner: currentUser.username, telegram: currentUser.telegram
+    };
+    const tgKey = currentUser.telegram;
+    if (!userPanels[tgKey]) userPanels[tgKey] = [];
+    userPanels[tgKey].push(newPanel);
+    localStorage.setItem('userPanels', JSON.stringify(userPanels));
+    document.getElementById('panelName').value = '';
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Buat Sekarang';
+    showToast('🎉 Panel "' + name + '" berhasil dibuat!');
+    updateStats();
+    showPage('myPanels');
+  }, 1200);
+}
+
+function renderMyPanels() {
+  const el = document.getElementById('myPanelsList');
+  const list = userPanels[currentUser?.telegram] || [];
+  if (list.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="icon">📭</div><div class="title">Belum ada panel</div><div class="sub">Buat panel gratis di menu "Buat Hosting"</div></div>`;
+    return;
+  }
+  el.innerHTML = list.slice().reverse().map(p => `
+    <div class="panel-item">
+      <div class="top">
+        <div class="name">📦 ${escapeHtml(p.name)}</div>
+        <div class="status">AKTIF</div>
+      </div>
+      <div class="info-grid">
+        <div class="item"><div class="lbl">Server</div><div class="val cyan">${escapeHtml(p.serverName)}</div></div>
+        <div class="item"><div class="lbl">RAM</div><div class="val">${p.ram === 'unli' ? 'Unlimited' : p.ram}</div></div>
+        <div class="item"><div class="lbl">Runtime</div><div class="val">${p.lang === 'nodejs' ? 'Node.js' : 'Python'}</div></div>
+        <div class="item"><div class="lbl">PLTA</div><div class="val gold">${escapeHtml(p.plta)}</div></div>
+        <div class="item"><div class="lbl">PLTC</div><div class="val gold">${escapeHtml(p.pltc)}</div></div>
+        <div class="item" style="grid-column:1/-1;"><div class="lbl">URL Server</div><div class="val green">${escapeHtml(p.url)}</div></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   OWNER SETTINGS
+============================================================ */
+function renderOwnerSettings() {
+  const el = document.getElementById('ownerServerList');
+  if (!el) return;
+  if (!currentUser || currentUser.role !== 'owner') {
+    el.innerHTML = '<div class="empty"><div class="icon">🔒</div><div class="title">Akses Ditolak</div></div>';
+    return;
+  }
+  el.innerHTML = Object.keys(serverConfig).map(k => {
+    const s = serverConfig[k];
+    const freeHint = k === 'v1' ? '<span class="free-hint">🎁 FREE PUBLIC</span>' : '';
+    return `
+      <div class="owner-server">
+        <div class="top">
+          <b>🖥️ Server ${s.name}${freeHint}</b>
+          <div class="toggle ${s.on ? 'on' : ''}" onclick="toggleServer('${k}')"></div>
+        </div>
+        <div class="owner-inputs">
+          <div><label>PLTA</label><input type="text" id="plta-${k}" value="${escapeHtml(s.plta)}"></div>
+          <div><label>PLTC</label><input type="text" id="pltc-${k}" value="${escapeHtml(s.pltc)}"></div>
+        </div>
+        <div class="owner-inputs full">
+          <div><label>URL Server</label><input type="text" id="url-${k}" value="${escapeHtml(s.url)}"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+function toggleServer(key) { serverConfig[key].on = !serverConfig[key].on; renderOwnerSettings(); }
+function saveOwnerSettings() {
+  if (!currentUser || currentUser.role !== 'owner') return showToast('❌ Akses ditolak!', true);
+  for (const k of Object.keys(serverConfig)) {
+    const plta = document.getElementById('plta-' + k)?.value.trim();
+    const pltc = document.getElementById('pltc-' + k)?.value.trim();
+    const url = document.getElementById('url-' + k)?.value.trim();
+    if (plta !== undefined) serverConfig[k].plta = plta;
+    if (pltc !== undefined) serverConfig[k].pltc = pltc;
+    if (url !== undefined) serverConfig[k].url = url;
+  }
+  localStorage.setItem('serverConfig', JSON.stringify(serverConfig));
+  initServerSelect(); updateStats();
+  showToast('💾 Pengaturan disimpan!');
+}
+
+/* ============================================================
+   ROLE MANAGEMENT
+============================================================ */
+function renderRolePicker() {
+  const picker = document.getElementById('rolePicker');
+  if (!picker || !currentUser) return;
+  const userRole = currentUser.role;
+  const availableRoles = getAvailableRoles(userRole);
+  if (!availableRoles.includes(roleFormState.role)) roleFormState.role = availableRoles[0] || null;
+
+  picker.innerHTML = Object.keys(ROLE_INFO).filter(k => k !== 'owner' && k !== 'user').map(r => {
+    const info = ROLE_INFO[r];
+    const canCreate = availableRoles.includes(r);
+    const isActive = roleFormState.role === r;
+    return `<div class="chip ${isActive ? 'on' : ''} ${!canCreate ? 'locked' : ''}"
+              data-role="${r}"
+              ${canCreate ? `onclick="pickRole('${r}')"` : 'title="Tidak bisa membuat role ini"'}>
+              ${info.icon} ${info.name}
+            </div>`;
+  }).join('');
+
+  const submitBtn = document.getElementById('btnCreateRole');
+  if (availableRoles.length === 0) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '🔒 Tidak Ada Role yang Bisa Dibuat';
+  } else {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '✨ Berikan Role Sekarang';
+  }
+}
+function pickRole(roleKey) {
+  if (!canCreateThisRole(currentUser.role, roleKey)) {
+    return showToast('❌ Role Anda tidak bisa membuat role ini!', true);
+  }
+  roleFormState.role = roleKey;
+  renderRolePicker();
+}
+
+function createRole() {
+  const telegram = document.getElementById('roleTelegram').value.trim();
+  if (!telegram) return showToast('❌ ID Telegram wajib diisi!', true);
+  if (!/^(@[a-zA-Z0-9_]{3,}|[0-9]{5,})$/.test(telegram)) {
+    return showToast('❌ Format Telegram tidak valid!', true);
+  }
+  if (isOwnerUtama(telegram)) {
+    return showToast('❌ Tidak bisa mengubah role Owner Utama!', true);
+  }
+  if (!canCreateRole(currentUser.role)) return showToast('❌ Role Anda tidak bisa membuat role!', true);
+  if (!roleFormState.role) return showToast('❌ Pilih role dulu!', true);
+  if (!canCreateThisRole(currentUser.role, roleFormState.role)) {
+    return showToast(`❌ Tidak bisa membuat role ${roleFormState.role.toUpperCase()}!`, true);
+  }
+  if (telegram === currentUser.telegram) return showToast('❌ Tidak bisa memberi role ke diri sendiri!', true);
+
+  const btn = document.getElementById('btnCreateRole');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Memproses...';
+
+  setTimeout(() => {
+    let username = telegram.startsWith('@') ? telegram.slice(1) : 'User_' + telegram.slice(-4);
+    const existing = roleUsers[telegram];
+    const wasUpdate = !!existing;
+    if (existing) username = existing.username;
+
+    roleUsers[telegram] = {
+      username, telegram, role: roleFormState.role,
+      createdAt: existing?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: currentUser.username
+    };
+    localStorage.setItem('roleUsers', JSON.stringify(roleUsers));
+    document.getElementById('roleTelegram').value = '';
+    btn.disabled = false;
+    btn.innerHTML = '✨ Berikan Role Sekarang';
+    showToast(wasUpdate
+      ? `🔄 Role ${telegram} diperbarui → ${roleFormState.role.toUpperCase()}`
+      : `🎉 Role ${roleFormState.role.toUpperCase()} diberikan ke ${telegram}!`);
+    renderRolesList();
+  }, 800);
+}
+
+function deleteRole(telegram) {
+  if (!roleUsers[telegram]) return;
+  if (isOwnerUtama(telegram)) return showToast('❌ Tidak bisa mencabut role Owner Utama!', true);
+  if (!canCreateRole(currentUser.role)) return showToast('❌ Tidak berhak!', true);
+  if (!canCreateThisRole(currentUser.role, roleUsers[telegram].role)) {
+    return showToast('❌ Kamu tidak berhak mencabut role ini!', true);
+  }
+  if (!confirm(`Cabut role dari ${telegram}?`)) return;
+  delete roleUsers[telegram];
+  localStorage.setItem('roleUsers', JSON.stringify(roleUsers));
+  showToast(`🗑️ Role ${telegram} dicabut!`);
+  renderRolesList();
+}
+
+function renderRolesList() {
+  const el = document.getElementById('rolesList');
+  if (!el || !currentUser) return;
+  const availableRoles = getAvailableRoles(currentUser.role);
+  const visibleKeys = Object.keys(roleUsers).filter(tg => availableRoles.includes(roleUsers[tg].role));
+
+  const infoHtml = `<div style="background:rgba(255,214,10,0.08);border:1px solid rgba(255,214,10,0.2);padding:12px 16px;border-radius:10px;margin-bottom:14px;font-size:0.8em;color:var(--text-dim);line-height:1.6;">
+    <b style="color:${currentUser.role === 'owner' ? 'var(--neon-gold)' : 'var(--neon-cyan)'};">${currentUser.role.toUpperCase()}</b> bisa mengelola role:
+    ${availableRoles.length > 0 ? availableRoles.map(r => `<span class="role-tag ${r}" style="margin:0 2px;">${r}</span>`).join(' ') : '<span style="color:var(--neon-pink);">Tidak ada</span>'}
+  </div>`;
+
+  if (visibleKeys.length === 0) {
+    el.innerHTML = infoHtml + `<div class="empty"><div class="icon">🎭</div><div class="title">Belum ada role</div><div class="sub">Tambahkan role ke user dengan ID Telegram</div></div>`;
+    return;
+  }
+  const sorted = visibleKeys.sort((a, b) => (ROLE_LEVELS[roleUsers[b].role]||0) - (ROLE_LEVELS[roleUsers[a].role]||0));
+  el.innerHTML = infoHtml + sorted.map(tg => {
+    const u = roleUsers[tg];
+    return `
+      <div class="role-user-card">
+        <div class="avatar">${u.username.charAt(0).toUpperCase()}</div>
+        <div class="info">
+          <div class="username">
+            ${escapeHtml(u.username)}
+            <span class="role-tag ${u.role}">${u.role}</span>
+          </div>
+          <div class="tg">📱 ${escapeHtml(u.telegram)}${u.createdBy ? ` · oleh ${escapeHtml(u.createdBy)}` : ''}</div>
+        </div>
+        <div class="actions">
+          <button class="del" onclick="deleteRole('${escapeHtml(tg)}')">🗑️ Cabut</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   UP ROLE (USER SIDE)
+============================================================ */
+function renderUprolePage() {
+  if (!currentUser) return;
+  const userRole = currentUser.role;
+
+  document.getElementById('currentRoleTag').textContent = userRole.toUpperCase();
+  document.getElementById('currentRoleTag').className = 'role-tag ' + userRole;
+  document.getElementById('currentTgDisplay').textContent = currentUser.telegram;
+
+  const UPGRADE_CHAIN = {
+    reseller: 'premium',
+    premium: 'partner',
+    partner: 'allrole',
+    allrole: 'admin',
+    admin: 'highowner',
+    highowner: null,
+    owner: null
+  };
+
+  const nextRole = UPGRADE_CHAIN[userRole];
+  const grid = document.getElementById('uproleGrid');
+
+  if (!nextRole) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text-dim);">
+      <div style="font-size:3em;margin-bottom:10px;">👑</div>
+      <div style="font-weight:700;color:var(--neon-gold);margin-bottom:6px;">Kamu sudah di level tertinggi!</div>
+      <div style="font-size:0.85em;">Tidak ada role yang bisa di-up.</div>
+    </div>`;
+    document.getElementById('btnWa').disabled = true;
+    return;
+  }
+
+  const info = ROLE_INFO[nextRole];
+  const price = getUpgradePrice(userRole, nextRole);
+
+  grid.innerHTML = `
+    <div class="role-card" onclick="selectUproleRole('${nextRole}')">
+      <div class="check">✓</div>
+      <div class="rc-icon">${info.icon}</div>
+      <div class="rc-name">${info.name}</div>
+      <div class="rc-desc">${info.desc}</div>
+      <div class="rc-price">
+        <span class="lbl">Harga</span>
+        Rp ${price.toLocaleString('id-ID')}
+      </div>
+    </div>
+  `;
+
+  selectedUproleRole = null;
+  document.getElementById('btnWa').disabled = true;
+  document.getElementById('msgPreview').innerHTML = '<em style="color:var(--text-dim)">Klik card di atas untuk melihat preview...</em>';
+}
+
+function selectUproleRole(roleKey) {
+  selectedUproleRole = roleKey;
+  document.querySelectorAll('#uproleGrid .role-card').forEach(card => card.classList.add('selected'));
+  updateMsgPreview();
+  document.getElementById('btnWa').disabled = false;
+  const price = getUpgradePrice(currentUser.role, roleKey);
+  showToast(`${ROLE_INFO[roleKey].icon} ${ROLE_INFO[roleKey].name} · Rp ${price.toLocaleString('id-ID')}`);
+}
+
+function updateMsgPreview() {
+  if (!selectedUproleRole || !currentUser) return;
+  const info = ROLE_INFO[selectedUproleRole];
+  const price = getUpgradePrice(currentUser.role, selectedUproleRole);
+  const msg =
+`Halo Owner 👋
+
+Saya ingin UP ROLE:
+
+👤 Username : ${currentUser.username}
+📱 ID Telegram : ${currentUser.telegram}
+🎭 Role Sekarang : ${currentUser.role.toUpperCase()}
+
+⬆️ UP ke Role : ${info.icon} ${info.name}
+💰 Harga : Rp ${price.toLocaleString('id-ID')}
+
+Mohon diproses ya min 🙏
+Terima kasih!`;
+
+  const html = msg
+    .replace(/(Halo Owner)/g, '<span class="hl">$1</span>')
+    .replace(/(UP ROLE)/g, '<span class="hl">$1</span>')
+    .replace(/(Rp [\d.,]+)/g, '<span class="price">$1</span>')
+    .replace(/(⬆️ UP ke Role)/g, '<span class="hl">$1</span>');
+
+  document.getElementById('msgPreview').innerHTML = html;
+}
+
+function chatOwnerWa() {
+  if (!selectedUproleRole || !currentUser) return;
+  const info = ROLE_INFO[selectedUproleRole];
+  const price = getUpgradePrice(currentUser.role, selectedUproleRole);
+  const msg =
+`Halo Owner 👋
+
+Saya ingin UP ROLE:
+
+👤 Username : ${currentUser.username}
+📱 ID Telegram : ${currentUser.telegram}
+🎭 Role Sekarang : ${currentUser.role.toUpperCase()}
+
+⬆️ UP ke Role : ${info.icon} ${info.name}
+💰 Harga : Rp ${price.toLocaleString('id-ID')}
+
+Mohon diproses ya min 🙏
+Terima kasih!`;
+
+  const url = `https://wa.me/${OWNER_WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+  showToast('📱 Membuka WhatsApp...');
+}
+
+/* ============================================================
+   UPGRADE ROLE (OWNER SIDE)
+============================================================ */
+function lookupUser() {
+  const tg = document.getElementById('upgradeTelegram').value.trim();
+  if (!tg) return showToast('❌ ID Telegram wajib diisi!', true);
+  if (!/^(@[a-zA-Z0-9_]{3,}|[0-9]{5,})$/.test(tg)) {
+    return showToast('❌ Format Telegram tidak valid!', true);
+  }
+  if (isOwnerUtama(tg)) {
+    return showToast('❌ Owner Utama tidak bisa di-upgrade!', true);
+  }
+
+  const found = roleUsers[tg];
+  if (!found) {
+    document.getElementById('upgradeUserInfo').style.display = 'none';
+    upgradeState = { user: null, newRole: null };
+    return showToast('❌ User dengan ID Telegram tersebut tidak ditemukan!', true);
+  }
+  if (found.role === 'owner') {
+    return showToast('❌ Tidak bisa upgrade role Owner!', true);
+  }
+
+  upgradeState.user = { ...found, telegram: tg };
+  upgradeState.newRole = null;
+
+  const card = document.getElementById('userFoundCard');
+  card.innerHTML = `
+    <div class="avatar">${found.username.charAt(0).toUpperCase()}</div>
+    <div class="info">
+      <div class="uname">
+        ${escapeHtml(found.username)}
+        <span class="role-tag ${found.role}">${found.role}</span>
+      </div>
+      <div class="meta">📱 ${escapeHtml(tg)}</div>
+    </div>
+    <div style="text-align:right;font-size:0.75em;color:var(--text-dim);">
+      <div>Role sekarang:</div>
+      <div style="font-weight:700;color:var(--neon-gold);font-size:1.2em;margin-top:2px;">
+        ${ROLE_INFO[found.role]?.icon || ''} ${found.role.toUpperCase()}
+      </div>
+    </div>
+  `;
+
+  renderUpgradeRolePicker(found.role);
+  document.getElementById('upgradeUserInfo').style.display = 'block';
+  document.getElementById('btnDoUpgrade').disabled = true;
+  showToast(`✅ User ditemukan: ${found.username}`);
+}
+
+function renderUpgradeRolePicker(currentRole) {
+  const picker = document.getElementById('upgradeRolePicker');
+  const currentLevel = ROLE_LEVELS[currentRole] || 0;
+  const allRoles = ['reseller','premium','partner','allrole','highowner','admin'];
+
+  picker.innerHTML = allRoles.map(r => {
+    const info = ROLE_INFO[r];
+    const isCurrent = r === currentRole;
+    const isLower = ROLE_LEVELS[r] < currentLevel;
+    let cls = 'chip';
+    let disabled = false;
+    if (isCurrent || isLower) { cls += ' locked'; disabled = true; }
+    return `<div class="${cls}" data-role="${r}"
+              ${!disabled ? `onclick="pickUpgradeRole('${r}')"` : ''}>
+              ${info.icon} ${info.name}
+              ${isCurrent ? ' (sekarang)' : ''}
+            </div>`;
+  }).join('');
+}
+
+function pickUpgradeRole(roleKey) {
+  if (!upgradeState.user) return;
+  const currentLevel = ROLE_LEVELS[upgradeState.user.role] || 0;
+  const newLevel = ROLE_LEVELS[roleKey] || 0;
+  if (newLevel <= currentLevel) {
+    return showToast('❌ Role baru harus lebih tinggi!', true);
+  }
+  upgradeState.newRole = roleKey;
+  document.querySelectorAll('#upgradeRolePicker .chip').forEach(c => {
+    c.classList.toggle('on', c.dataset.role === roleKey);
+  });
+  const warn = document.getElementById('upgradeWarn');
+  const oldInfo = ROLE_INFO[upgradeState.user.role];
+  const newInfo = ROLE_INFO[roleKey];
+  const price = getUpgradePrice(upgradeState.user.role, roleKey);
+  warn.className = 'upgrade-warn info';
+  warn.style.display = 'block';
+  warn.innerHTML = `⬆️ <b>Upgrade:</b> ${oldInfo.icon} ${oldInfo.name} → ${newInfo.icon} <b>${newInfo.name}</b>${price ? `<br>💰 <b>Harga:</b> Rp ${price.toLocaleString('id-ID')}` : ''}`;
+  document.getElementById('btnDoUpgrade').disabled = false;
+  document.getElementById('btnDoUpgrade').innerHTML = `⬆️ Upgrade ke ${newInfo.icon} ${newInfo.name}`;
+}
+
+function doUpgradeRole() {
+  if (!upgradeState.user || !upgradeState.newRole) {
+    return showToast('❌ Pilih user & role baru dulu!', true);
+  }
+  if (!isOwnerUser(currentUser)) {
+    return showToast('❌ Hanya Owner Utama yang bisa upgrade role!', true);
+  }
+  const btn = document.getElementById('btnDoUpgrade');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Upgrading...';
+
+  setTimeout(() => {
+    const tg = upgradeState.user.telegram;
+    const oldRole = upgradeState.user.role;
+    const newRole = upgradeState.newRole;
+
+    if (roleUsers[tg]) {
+      roleUsers[tg].role = newRole;
+      roleUsers[tg].updatedAt = new Date().toISOString();
+      roleUsers[tg].upgradedBy = currentUser.username;
+      localStorage.setItem('roleUsers', JSON.stringify(roleUsers));
+    }
+
+    upgradeHistory.unshift({
+      telegram: tg,
+      username: upgradeState.user.username,
+      oldRole: oldRole,
+      newRole: newRole,
+      upgradedBy: currentUser.username,
+      timestamp: new Date().toISOString()
+    });
+    if (upgradeHistory.length > 50) upgradeHistory = upgradeHistory.slice(0, 50);
+    localStorage.setItem('upgradeHistory', JSON.stringify(upgradeHistory));
+
+    showToast(`⬆️ ${upgradeState.user.username} di-upgrade: ${oldRole.toUpperCase()} → ${newRole.toUpperCase()}!`);
+
+    document.getElementById('upgradeTelegram').value = '';
+    document.getElementById('upgradeUserInfo').style.display = 'none';
+    document.getElementById('upgradeWarn').style.display = 'none';
+    upgradeState = { user: null, newRole: null };
+    btn.disabled = true;
+    btn.innerHTML = '⬆️ Upgrade Role Sekarang';
+    renderUpgradeHistory();
+  }, 1000);
+}
+
+function renderUpgradeHistory() {
+  const el = document.getElementById('upgradeHistoryList');
+  if (!el) return;
+  if (upgradeHistory.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="icon">📜</div><div class="title">Belum ada riwayat</div><div class="sub">Riwayat upgrade role akan muncul di sini</div></div>`;
+    return;
+  }
+  el.innerHTML = upgradeHistory.slice(0, 20).map(h => {
+    const oldInfo = ROLE_INFO[h.oldRole] || { icon: '❓', name: h.oldRole };
+    const newInfo = ROLE_INFO[h.newRole] || { icon: '❓', name: h.newRole };
+    const time = new Date(h.timestamp).toLocaleString('id-ID', {
+      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    return `
+      <div class="upgrade-history-item">
+        <div class="avatar" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--neon-gold),var(--neon-pink));color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">
+          ${h.username.charAt(0).toUpperCase()}
+        </div>
+        <div style="flex:1;min-width:180px;">
+          <div style="font-weight:700;font-size:0.9em;">${escapeHtml(h.username)}</div>
+          <div style="font-size:0.72em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">📱 ${escapeHtml(h.telegram)}</div>
+        </div>
+        <div class="arrow-flow">
+          <span class="role-tag ${h.oldRole}" style="font-size:0.65em;">${oldInfo.icon} ${h.oldRole}</span>
+          <span style="color:var(--neon-gold);font-weight:700;">→</span>
+          <span class="role-tag ${h.newRole}" style="font-size:0.65em;">${newInfo.icon} ${h.newRole}</span>
+        </div>
+        <div class="time">${time}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ============================================================
+   UTIL
+============================================================ */
+let toastTimer;
+function showToast(msg, isErr = false, isGold = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('err', 'gold');
+  if (isErr) t.classList.add('err');
+  else if (isGold) t.classList.add('gold');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+</script>
+</body>
+</html>
